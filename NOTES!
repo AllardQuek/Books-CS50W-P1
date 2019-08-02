@@ -1,0 +1,24 @@
+To access psql and tables info:
+
+psql postgres://ytswitqwilikje:df5c9618c7c0f7304c9d79ad4a32dfc9688b7e25778d04a2136acf035cbc3241@ec2-54-235-156-60.compute-1.amazonaws.com:5432/demvl4cnlne115
+
+To run flask app:
+export FLASK_APP=application.py. You may optionally want to set the environment variable FLASK_DEBUG to 1, which will activate Flask’s debugger and will automatically reload your web application whenever you save a change to a file.
+
+Optionally set the environment variable FLASK_DEBUG=1, which will activate Flask’s debugger and will automatically reload your web application whenever you save a change to a file.
+
+
+Using SQL, before running flask run:
+export DATABASE_URL="postgres://ytswitqwilikje:df5c9618c7c0f7304c9d79ad4a32dfc9688b7e25778d04a2136acf035cbc3241@ec2-54-235-156-60.compute-1.amazonaws.com:5432/demvl4cnlne115" (database URI from heroku credentials)
+
+
+\d lists all tables
+\d+ lists tables with additional description
+\d+ tablename shows addition info on the table: datatype, relations, etc
+Remove sequence: DROP SEQUENCE
+Rename table: ALTER TABLE table_name RENAME TO new_table_name;
+Remove primary key: ALTER TABLE users DROP CONSTRAINT users_pkey;
+Add primary key: ALTER TABLE table_name ADD PRIMARY KEY (column_1, column_2);
+Remove not null constraint: alter table users alter column email drop not null;
+Add new table: ALTER TABLE reviews ADD COLUMN username VARCHAR;
+Add NOT NULL constraint: ALTER TABLE ALTER COLUMN review SET NOT NULL;

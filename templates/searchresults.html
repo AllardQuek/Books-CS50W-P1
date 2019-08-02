@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<table id="results" class="table table-bordered table-hover text-info">
+    <thead>
+        <th>ISBN</th>
+        <th>Title</th>
+        <th>Author</th>
+    </thead>
+
+    <tbody>
+        {% for result in results %}
+        <tr>
+            <td><a href="{{ url_for('bookpage') }}">{{ result["isbn"] }}</a></td>
+            <td><a href="{{ url_for('bookpage') }}">{{ result["title"] }}</a></td>
+            <td>{{ result["author"] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}

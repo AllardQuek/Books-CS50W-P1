@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Registration Successful
+{% endblock %}
+
+{% block heading %}
+    Successfully registered!
+    {% endblock %}
+
+    {% block main %}
+
+    You are now one of our users :)
+    <a href="{{ url_for('search') }}">Start searching</a>
+    <a href="{{ url_for('index') }}">
+        <button name="logout">Logout</button>
+    </a>
+{% endblock %}
