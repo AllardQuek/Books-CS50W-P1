@@ -25,3 +25,11 @@ Add NOT NULL constraint: ALTER TABLE ALTER COLUMN review SET NOT NULL;
 
 
 HARD refresh (CMD + Shift + R) if CSS changes not appearing
+
+
+
+CODE
+try: # The way to handle any possibility of error, instead of having "my whole website crash".
+    flight_id = int(request.form.get("flight_id")) #int should not be necessary. Error occurs when the info extracted is a string for example, which cannot be converted into int.
+except ValueError:
+    return render_template("error.html", message="Invalid flight number.")

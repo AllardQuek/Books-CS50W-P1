@@ -34,10 +34,9 @@ def register():
         username = request.form.get("username")
         password = request.form.get("password")
 
-        # Check if username already exists: flights = db.execute("SELECT * FROM flights").fetchall(), the following DOESN'T WORK..?: does request.form.get return a string?? YES
-        # Does db.execute fetchall return a list of strings? ('Charlie',) it returns a LIST of 0 or more dict objects, which are keys and values representing a table’s fields and cells, respectively.
-        # allusers = db.execute("SELECT username FROM users").fetchall()
-        # if username in allusers:
+
+        # Does db.execute fetchall return a list of strings? It returns [('Apple',), ('Allard',)] which is a LIST of 0 or more dict objects, which are keys and values representing a table’s fields and cells, respectively.
+        # type of result is <class 'sqlalchemy.engine.result.RowProxy'>, which cannot be compared to string returned via request.form.get
 
         if db.execute("SELECT username from users WHERE username = :username", {"username": username}).rowcount >= 1:
             return render_template("error.html", message="This username already exists. Sorry!")
@@ -47,12 +46,7 @@ def register():
         db.commit()
         return render_template("register.html")
 
-        #try: # The way to handle any possibility of error, instead of having "my whole website crash".
-            #flight_id = int(request.form.get("flight_id")) #int should not be necessary. #Error occurs when the info extracted is a string for example, and thus cannot be converted into int.
-        #except ValueError:
-            #return render_template("error.html", message="Invalid flight number.")
-
-    # Else if accessed via GET
+    # Else if method is GET
     return redirect("/")
 
 
@@ -116,7 +110,7 @@ def searchresults():
     elif select == "title":
         results = db.execute("SELECT * FROM books WHERE (title LIKE '%' || :title || '%')", {"title": query}).fetchall()
 
-    elif select == "author":
+    else:
         results = db.execute("SELECT * FROM books WHERE (author LIKE '%' || :author || '%')", {"author": query}).fetchall()
 
     if not results:
@@ -127,7 +121,7 @@ def searchresults():
 
 @app.route("/bookpage/<isbn>")
 def bookpage(isbn):
-# Remember bookpage function needs to take an argument isbn lest it would not expect a keyword argument
+# bookpage function needs to take an argument isbn lest it would not expect a keyword argument
 
     # Make sure book with isbn exists
     row = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
@@ -150,10 +144,6 @@ def submitreview():
         review = request.form.get("review")
     except:
         return render_template("error.html", message="No review!")
-    # db.execute("INSERT INTO users (username, password) VALUES (:username, :password)",
-    #             {"username": username, "password": password})
-    # db.commit()
-    db.execute("INSERT INTO reviews (review)")
 
     return redirect("/bookpage")
 
