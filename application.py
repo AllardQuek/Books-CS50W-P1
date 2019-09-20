@@ -36,8 +36,9 @@ def register():
 
         # Check if username already exists: flights = db.execute("SELECT * FROM flights").fetchall(), the following DOESN'T WORK..?: does request.form.get return a string?? YES
         # Does db.execute fetchall return a list of strings? ('Charlie',) it returns a LIST of 0 or more dict objects, which are keys and values representing a table’s fields and cells, respectively.
-        #allusers = db.execute("SELECT username FROM users").fetchall()
+        # allusers = db.execute("SELECT username FROM users").fetchall()
         # if username in allusers:
+
         if db.execute("SELECT username from users WHERE username = :username", {"username": username}).rowcount >= 1:
             return render_template("error.html", message="This username already exists. Sorry!")
 
@@ -51,12 +52,19 @@ def register():
         #except ValueError:
             #return render_template("error.html", message="Invalid flight number.")
 
-    # Else if register route accessed via GET request
+    # Else if accessed via GET
     return redirect("/")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
 
 @app.route("/search", methods=["POST", "GET"])
 def search():
-    # if accessed via login home page
+    # If accessed via login home page
     if request.method == "POST":
         # Forget any user_id
         session.clear()
@@ -67,9 +75,8 @@ def search():
 
         # Check for match in db; need to specify .first() OR .fetchall(), unlike psets in CS50
         rows = db.execute("SELECT * FROM users WHERE username = :username", {"username": request.form.get("username")}).fetchall()
-        # print (rows)
 
-        # if username doesn't exist, or password wrong
+        # If username doesn't exist, or password wrong
         if len(rows) != 1 or request.form.get("password") != rows[0]["password"]:
             return render_template("error.html", message="Wrong username/password")
 
@@ -84,57 +91,69 @@ def search():
         else:
             return redirect("/")
 
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/")
 
 
 @app.route("/searchresults", methods=["POST"])
 def searchresults():
-
-    # If user did not provide any input
+    # If no input provided
     if not request.form.get("query"):
         return render_template("error.html", message="Please enter a query"), 400
 
     select = request.form.get("select")
     query = request.form.get("query")
-    print(select)
 
     # Note must use || as + operator is not unique and does not work AND note single quotes
     # OR if sqltitle = "%" + title + "%"
     # THEN rows = db.execute("SELECT * FROM books WHERE title LIKE :title", {"title": sqltitle}).fetchall()
+
     if select == "isbn":
-        int_query = int(query)
-        rows = db.execute("SELECT * FROM books WHERE (isbn LIKE '%' || :isbn || '%')", {"isbn": int_query}).fetchall()
+        try:
+            int_query = int(query)
+            results = db.execute("SELECT * FROM books WHERE (isbn LIKE '%' || :isbn || '%')", {"isbn": int_query}).fetchall()
+        except:
+            return render_template("error.html", message="Please fill in properly")
 
     elif select == "title":
-        rows = db.execute("SELECT * FROM books WHERE (title LIKE '%' || :title || '%')", {"title": query}).fetchall()
-    else:
-        rows = db.execute("SELECT * FROM books WHERE (author LIKE '%' || :author || '%')", {"author": query}).fetchall()
-        print(rows)
+        results = db.execute("SELECT * FROM books WHERE (title LIKE '%' || :title || '%')", {"title": query}).fetchall()
 
-    if not rows:
+    elif select == "author":
+        results = db.execute("SELECT * FROM books WHERE (author LIKE '%' || :author || '%')", {"author": query}).fetchall()
+
+    if not results:
         return render_template("error.html", message="No matching books were found!")
 
-    return render_template("searchresults.html", results = rows)
+    return render_template("searchresults.html", results = results)
 
 
-@app.route("/bookpage")
-def bookpage():
-    # TODO: implement variable url
+@app.route("/bookpage/<isbn>")
+def bookpage(isbn):
+# Remember bookpage function needs to take an argument isbn lest it would not expect a keyword argument
 
-    # Book details: title/author/year/isbn/reviews
-    # main_details = db.execute("SELECT * FROM books WHERE title = :title", {"title": title}).fetchall()
-    # review_details = db.execute("SELECT review FROM reviews WHERE title = :title", {"title": title }).fetchall()
+    # Make sure book with isbn exists
+    row = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+    if row is None:
+        return render_template("error.html", message="No such book!"), 400
+    print(row)
+
+    reviews = db.execute("SELECT review FROM reviews WHERE title = :title", {"title": title }).fetchall()
+    print(reviews)
 
     # Goodreads reviews (using API?)
 
     # Submit review
-    return render_template("bookpage.html")
+    return render_template("bookpage.html", row=row)
 
 @app.route("/submitreview", methods=["POST"])
 def submitreview():
+
+    try:
+        review = request.form.get("review")
+    except:
+        return render_template("error.html", message="No review!")
+    # db.execute("INSERT INTO users (username, password) VALUES (:username, :password)",
+    #             {"username": username, "password": password})
+    # db.commit()
+    db.execute("INSERT INTO reviews (review)")
 
     return redirect("/bookpage")
 

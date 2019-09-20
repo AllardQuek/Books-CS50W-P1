@@ -22,3 +22,6 @@ Add primary key: ALTER TABLE table_name ADD PRIMARY KEY (column_1, column_2);
 Remove not null constraint: alter table users alter column email drop not null;
 Add new table: ALTER TABLE reviews ADD COLUMN username VARCHAR;
 Add NOT NULL constraint: ALTER TABLE ALTER COLUMN review SET NOT NULL;
+
+
+HARD refresh (CMD + Shift + R) if CSS changes not appearing

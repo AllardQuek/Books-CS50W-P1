@@ -3,6 +3,12 @@
 {% block main %}
     <div class="col-8 float-left">
         <h3>Details</h3>
+        <ul>
+            <li>{{ row.title }}</li>
+            <li>{{ row["author"] }}</li>
+            <li>{{ row["year"] }}</li>
+            <li>{{ row["isbn"] }}</li>
+        </ul>
     </div>
 
     <div class="list-group col-4 float-right">
@@ -17,14 +23,13 @@
         </a>
     </div>
 
+    <form action="{{ url_for('submitreview') }}" method="post">
+        <div class="form-group">
+            <textarea id="textarea" class="form-control" name="review" rows="8" cols="100" placeholder="Write a review"></textarea>
+        </div>
+        <button class="btn btn-info" type="submit">Submit review</button>
+    </form>
 
-
-<form action="{{ url_for('submitreview') }}" method="post">
-    <div class="form-group">
-        <textarea id="textarea" class="form-control" name="review" rows="8" cols="100" placeholder="Write a review"></textarea>
-    </div>
-    <button class="btn btn-info" type="submit">Submit review</button>
-</form>
 
 
 {% endblock %}

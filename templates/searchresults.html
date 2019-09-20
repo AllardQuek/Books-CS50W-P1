@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
 {% block main %}
+
 <table id="results" class="table table-bordered table-hover text-info">
     <thead>
         <th>ISBN</th>
@@ -11,13 +12,12 @@
     <tbody>
         {% for result in results %}
         <tr>
-            <td><a href="{{ url_for('bookpage') }}">{{ result["isbn"] }}</a></td>
-            <td><a href="{{ url_for('bookpage') }}">{{ result["title"] }}</a></td>
+            <td>{{ result["isbn"] }}</td>
+            <td><a href="{{ url_for('bookpage', isbn=result['isbn']) }}">{{ result["title"] }}</a></td>
             <td>{{ result["author"] }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-
 
 {% endblock %}
