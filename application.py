@@ -1,5 +1,6 @@
 import os
 import requests
+import datetime
 
 from flask import Flask, session, render_template, request, redirect, flash
 from flask_session import Session
@@ -33,7 +34,6 @@ def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-
 
         # Does db.execute fetchall return a list of strings? It returns [('Apple',), ('Allard',)] which is a LIST of 0 or more dict objects, which are keys and values representing a table’s fields and cells, respectively.
         # type of result is <class 'sqlalchemy.engine.result.RowProxy'>, which cannot be compared to string returned via request.form.get
@@ -127,28 +127,45 @@ def bookpage(isbn):
     row = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
     if row is None:
         return render_template("error.html", message="No such book!"), 400
-    print(row)
 
-    reviews = db.execute("SELECT review FROM reviews WHERE title = :title", {"title": title }).fetchall()
-    print(reviews)
+    reviews = db.execute("SELECT review, username, datetime, rating FROM reviews WHERE isbn = :isbn", {"isbn": isbn }).fetchall()
 
-    # Goodreads reviews (using API?)
+    # Goodreads reviews data using API
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "rp5fatbknRT7djHIMLasw", "isbns": isbn})
+    ratings_count = res.json()['books'][0]['work_ratings_count']
+    average_rating = res.json()['books'][0]['average_rating']
 
-    # Submit review
-    return render_template("bookpage.html", row=row)
 
-@app.route("/submitreview", methods=["POST"])
-def submitreview():
+    return render_template("bookpage.html", row=row, reviews=reviews, ratings_count=ratings_count, average_rating=average_rating)
+
+@app.route("/bookpage/<isbn>/submitreview", methods=["POST"])
+def submitreview(isbn):
+
+    # fetchone is important lest ResultProxy object returned instead of RowProxy which has attribute title
+    user = db.execute("SELECT username FROM users WHERE id = :id", {"id": session["user_id"]}).fetchone()
+    book = db.execute("SELECT title FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+
+    # Check if user has already submitted a review
+    if db.execute("SELECT review FROM reviews WHERE title = :title AND username = :username", {"title": book.title, "username": user.username}).rowcount >= 1:
+        return render_template("error.html", message="Sorry, you may only submit one review!")
 
     try:
         review = request.form.get("review")
+        rating = int(request.form.get("rating"))
     except:
         return render_template("error.html", message="No review!")
 
-    return redirect("/bookpage")
+    db.execute("INSERT INTO reviews (isbn, title, review, username, datetime, rating) VALUES (:isbn, :title, :review, :username, to_char(current_timestamp, 'DD-MM-YYYY HH12:MI:SS'), :rating)", {"isbn": isbn, "title": book.title, "review": review, "username":user.username, "rating": rating})
+    db.commit()
+
+    return redirect(f"/bookpage/{isbn}")
 
 
 @app.route("/api/<int:isbn>")
 def api(isbn):
-    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "KEY", "isbns": "9781632168146"})
-    print(res.json())
+
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "rp5fatbknRT7djHIMLasw", "isbns": isbn})
+    if not res:
+        return render_template("error.html", message="isbn number does not exist!"), 404
+
+    return render_template("api.html", res=res.json())
