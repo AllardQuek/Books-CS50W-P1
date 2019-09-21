@@ -49,3 +49,6 @@ For making search queries:
 Note must use || as + operator is not unique and does not work AND note single quotes, alternatively:
 sqltitle = "%" + title + "%"
 rows = db.execute("SELECT * FROM books WHERE title LIKE :title", {"title": sqltitle}).fetchall()
+
+
+hello
