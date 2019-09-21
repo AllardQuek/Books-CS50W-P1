@@ -187,5 +187,3 @@ def api(isbn):
             "review_count": review_count,
             "average_score": average_score
     })
-
-    hello
