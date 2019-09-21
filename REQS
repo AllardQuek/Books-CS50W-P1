@@ -26,7 +26,7 @@ session, reference/join tables, security
 
 
 6) API Access:
-- If users make a GET request to your website’s /api/<isbn> route, where <isbn> is an ISBN number, your website should return a JSON response containing the book’s title, author, publication date, ISBN number, review count, and average score. The resulting JSON should follow the format: <<<
+- If users make a GET request to your website’s /api/<isbn> route, where <isbn> is an ISBN number, your website should return a JSON response containing the book’s title, author, publication date, ISBN number, review count, and average score. The resulting JSON should follow the format: #
 {
     "title": "Memory",
     "author": "Doug Lloyd",
