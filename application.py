@@ -46,7 +46,11 @@ def register():
         except:
             return render_template("error.html", message="Could not insert data"), 500
 
-        return render_template("register.html")
+        # Set session["user_id"] value to user's id
+        rows = db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).fetchall()
+        session["user_id"] = rows[0]["id"]
+
+        return render_template("search.html")
 
     # Else if method is GET
     return redirect("/")
